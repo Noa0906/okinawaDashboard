@@ -2,7 +2,6 @@ const express = require("express");
 const session = require("express-session");
 const path = require("path");
 const fs = require("fs");
-const axios = require("axios"); // ✅ API 호출용 추가
 
 const app = express();
 app.use(express.json());
@@ -16,18 +15,20 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// ✅ FPS.MS API URL (여기 주소를 실제 서버 주소/포트로 수정하세요)
-const FPSMS_API_URL = "http://<YOUR_FPSMS_HOST>:4000/api/accounts";
+// webaccounts.json 경로 (Render 서버에서 직접 관리)
+const WEB_ACCOUNTS_FILE = path.join(__dirname, "data", "webaccounts.json");
 
-// FPS.MS에서 계정 불러오기
-async function loadWebAccounts() {
-    try {
-        const res = await axios.get(FPSMS_API_URL);
-        return res.data || {};
-    } catch (err) {
-        console.error("❌ FPS.MS 계정 API 불러오기 실패:", err.message);
-        return {};
+// 계정 불러오기
+function loadWebAccounts() {
+    if (fs.existsSync(WEB_ACCOUNTS_FILE)) {
+        try {
+            return JSON.parse(fs.readFileSync(WEB_ACCOUNTS_FILE, "utf8"));
+        } catch (err) {
+            console.error("❌ webaccounts.json 로드 실패:", err.message);
+            return {};
+        }
     }
+    return {};
 }
 
 // ========== 기본 페이지 ==========
@@ -39,11 +40,10 @@ app.get("/", (req, res) => {
 });
 
 // ========== WebAccount (아이디/비번) 로그인 ==========
-app.post("/local-login", async (req, res) => {
+app.post("/local-login", (req, res) => {
     const { username, password } = req.body;
 
-    // ✅ FPS.MS API에서 계정 불러오기
-    const accounts = await loadWebAccounts();
+    const accounts = loadWebAccounts();
 
     const account = Object.values(accounts).find(
         acc => acc.username === username && acc.password === password
@@ -53,7 +53,7 @@ app.post("/local-login", async (req, res) => {
         return res.status(401).json({ error: "아이디 또는 비밀번호가 잘못되었습니다." });
     }
 
-    // ✅ 로그인 성공 → 세션에 guildId 저장
+    // ✅ 로그인 성공 → 세션에 저장
     req.session.guildId = account.guildId;
     req.session.username = account.username;
 
