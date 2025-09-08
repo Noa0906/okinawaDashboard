@@ -387,6 +387,29 @@
             color: #8e9297;
             font-style: italic;
         }
+
+        /* Loading and Alert styles */
+        .loading {
+            color: #8e9297;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .alert-success {
+            background: #57f287;
+            color: #1e2328;
+        }
+
+        .alert-error {
+            background: #ed4245;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -447,7 +470,7 @@
                         <div class="service-icon">⚙️</div>
                         <div>
                             <div class="service-title">Okinawa Service</div>
-                            <div class="service-status">활성화 됨온 Roblox shop (24시)</div>
+                            <div class="service-status" id="serverStatus">서버 활성화됨</div>
                         </div>
                     </div>
                 </div>
@@ -461,22 +484,25 @@
                 </div>
 
                 <div class="settings-form">
-                    <div class="form-group">
-                        <label class="form-label">임베드 제목</label>
-                        <input type="text" class="form-input" placeholder="티켓 임베드 제목을 입력하세요">
-                    </div>
+                    <div id="embed-alert"></div>
+                    <form id="embedForm">
+                        <div class="form-group">
+                            <label class="form-label">임베드 제목</label>
+                            <input type="text" id="embedTitle" class="form-input" placeholder="티켓 임베드 제목을 입력하세요">
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">임베드 설명</label>
-                        <textarea class="form-input form-textarea" placeholder="티켓 임베드 설명을 입력하세요"></textarea>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">임베드 설명</label>
+                            <textarea id="embedDescription" class="form-input form-textarea" placeholder="티켓 임베드 설명을 입력하세요"></textarea>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">임베드 색상</label>
-                        <input type="color" class="form-input" value="#5865f2">
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">임베드 색상</label>
+                            <input type="color" id="embedColor" class="form-input" value="#5865f2">
+                        </div>
 
-                    <button class="btn">설정 저장</button>
+                        <button type="submit" class="btn">설정 저장</button>
+                    </form>
                 </div>
             </div>
 
@@ -488,26 +514,25 @@
                 </div>
 
                 <div class="settings-form">
-                    <div class="form-group">
-                        <label class="form-label">공지 제목</label>
-                        <input type="text" class="form-input" placeholder="공지 제목을 입력하세요">
-                    </div>
+                    <div id="notice-alert"></div>
+                    <form id="noticeForm">
+                        <div class="form-group">
+                            <label class="form-label">공지 제목</label>
+                            <input type="text" id="noticeTitle" class="form-input" placeholder="공지 제목을 입력하세요">
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">공지 내용</label>
-                        <textarea class="form-input form-textarea" placeholder="공지 내용을 입력하세요"></textarea>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">공지 내용</label>
+                            <textarea id="noticeContent" class="form-input form-textarea" placeholder="공지 내용을 입력하세요"></textarea>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">공지 채널</label>
-                        <select class="form-input">
-                            <option>채널을 선택하세요</option>
-                            <option>#공지사항</option>
-                            <option>#일반</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">공지 채널</label>
+                            <input type="text" id="noticeChannel" class="form-input" placeholder="채널 ID 또는 채널명">
+                        </div>
 
-                    <button class="btn">공지 발송</button>
+                        <button type="submit" class="btn">공지 설정 저장</button>
+                    </form>
                 </div>
             </div>
 
@@ -526,6 +551,7 @@
                     </button>
                     
                     <div id="buttonFormContent" style="display: none;">
+                        <div id="button-form-alert"></div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">버튼 텍스트</label>
@@ -572,9 +598,7 @@
                     <h3 style="margin-bottom: 20px; color: #fff;">생성된 버튼 목록</h3>
                     
                     <div class="button-list" id="buttonList">
-                        <div class="no-buttons" id="noButtonsMessage">
-                            아직 생성된 버튼이 없습니다. 위의 '새 버튼 추가하기'를 클릭해보세요!
-                        </div>
+                        <div class="loading" id="buttonListLoading">버튼 목록을 불러오는 중...</div>
                     </div>
                 </div>
             </div>
@@ -587,30 +611,28 @@
                 </div>
 
                 <div class="settings-form">
-                    <div class="form-group">
-                        <label class="form-label">채널 제목 형식</label>
-                        <input type="text" class="form-input" placeholder="ticket-{username}" value="ticket-{username}">
-                        <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
-                            사용 가능한 변수: {username}, {userid}, {number}
-                        </small>
-                    </div>
+                    <div id="title-alert"></div>
+                    <form id="titleForm">
+                        <div class="form-group">
+                            <label class="form-label">채널 제목 형식</label>
+                            <input type="text" id="titleFormat" class="form-input" placeholder="ticket-{username}" value="ticket-{username}">
+                            <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
+                                사용 가능한 변수: {username}, {userid}, {number}
+                            </small>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">카테고리 선택</label>
-                        <select class="form-input">
-                            <option>카테고리를 선택하세요</option>
-                            <option>📋 티켓</option>
-                            <option>🎫 지원</option>
-                            <option>💼 관리</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">카테고리 ID</label>
+                            <input type="text" id="categoryId" class="form-input" placeholder="카테고리 ID를 입력하세요">
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">최대 티켓 수</label>
-                        <input type="number" class="form-input" placeholder="10" value="10">
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">최대 티켓 수</label>
+                            <input type="number" id="maxTickets" class="form-input" placeholder="10" value="10">
+                        </div>
 
-                    <button class="btn">설정 저장</button>
+                        <button type="submit" class="btn">설정 저장</button>
+                    </form>
                 </div>
             </div>
 
@@ -622,43 +644,132 @@
                 </div>
 
                 <div class="settings-form">
-                    <div class="form-group">
-                        <label class="form-label">임베드 GIF URL</label>
-                        <input type="url" id="gifUrl" class="form-input" placeholder="https://example.com/embed-image.gif" value="">
-                        <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
-                            티켓 생성 임베드에 표시될 GIF 이미지 URL을 입력하세요
-                        </small>
-                    </div>
+                    <div id="gif-alert"></div>
+                    <form id="gifForm">
+                        <div class="form-group">
+                            <label class="form-label">임베드 GIF URL</label>
+                            <input type="url" id="gifUrl" class="form-input" placeholder="https://example.com/embed-image.gif" value="">
+                            <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
+                                티켓 생성 임베드에 표시될 GIF 이미지 URL을 입력하세요
+                            </small>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">GIF 미리보기</label>
-                        <div style="background: #2f3136; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #40444b;">
-                            <div id="gifPreview" style="color: #8e9297; font-style: italic;">
-                                GIF URL을 입력하면 여기에 미리보기가 표시됩니다
+                        <div class="form-group">
+                            <label class="form-label">GIF 미리보기</label>
+                            <div style="background: #2f3136; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #40444b;">
+                                <div id="gifPreview" style="color: #8e9297; font-style: italic;">
+                                    GIF URL을 입력하면 여기에 미리보기가 표시됩니다
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">GIF 표시 설정</label>
-                        <select class="form-input" id="gifEnabled">
-                            <option value="enabled">GIF 표시 활성화</option>
-                            <option value="disabled">GIF 표시 비활성화</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label">GIF 표시 설정</label>
+                            <select class="form-input" id="gifEnabled">
+                                <option value="enabled">GIF 표시 활성화</option>
+                                <option value="disabled">GIF 표시 비활성화</option>
+                            </select>
+                        </div>
 
-                    <button class="btn" id="saveGifBtn">GIF 설정 저장</button>
+                        <button type="submit" class="btn">GIF 설정 저장</button>
+                    </form>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        let buttons = [];
+        let sessionInfo = null;
+        let serverConfig = null;
         let editingButtonId = null;
 
-        // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // 세션 정보 가져오기
+                const sessionResponse = await fetch('/api/session-info');
+                if (!sessionResponse.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                sessionInfo = await sessionResponse.json();
+                
+                // 서버 이름 표시
+                document.getElementById('serverStatus').textContent = `서버 활성화됨: ${sessionInfo.serverName}`;
+                
+                // 서버 설정 가져오기
+                await loadServerConfig();
+                
+                // 네비게이션 초기화
+                initNavigation();
+                
+                // 폼 이벤트 리스너 초기화
+                initFormHandlers();
+                
+                // 버튼 관리 초기화
+                initButtonManagement();
+                
+                // GIF 관리 초기화
+                initGifManagement();
+                
+            } catch (error) {
+                console.error('초기화 실패:', error);
+                showAlert('main', '페이지 로드 중 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        // 서버 설정 불러오기
+        async function loadServerConfig() {
+            try {
+                const response = await fetch('/api/ticket-config');
+                if (response.ok) {
+                    const data = await response.json();
+                    serverConfig = data.config;
+                    populateFormData();
+                }
+            } catch (error) {
+                console.error('서버 설정 로드 실패:', error);
+            }
+        }
+
+        // 폼에 데이터 채우기
+        function populateFormData() {
+            if (!serverConfig) return;
+
+            // 임베드 설정
+            if (serverConfig.embed) {
+                document.getElementById('embedTitle').value = serverConfig.embed.title || '';
+                document.getElementById('embedDescription').value = serverConfig.embed.description || '';
+                document.getElementById('embedColor').value = serverConfig.embed.color || '#5865f2';
+            }
+
+            // 공지 설정
+            if (serverConfig.notice) {
+                document.getElementById('noticeTitle').value = serverConfig.notice.title || '';
+                document.getElementById('noticeContent').value = serverConfig.notice.content || '';
+                document.getElementById('noticeChannel').value = serverConfig.notice.channel || '';
+            }
+
+            // 제목 설정
+            if (serverConfig.title) {
+                document.getElementById('titleFormat').value = serverConfig.title.format || 'ticket-{username}';
+                document.getElementById('categoryId').value = serverConfig.title.categoryId || '';
+                document.getElementById('maxTickets').value = serverConfig.title.maxTickets || 10;
+            }
+
+            // GIF 설정
+            if (serverConfig.gif) {
+                document.getElementById('gifUrl').value = serverConfig.gif.url || '';
+                document.getElementById('gifEnabled').value = serverConfig.gif.enabled || 'enabled';
+                updateGifPreview(serverConfig.gif.url || '');
+            }
+
+            // 버튼 목록 렌더링
+            renderButtons();
+        }
+
+        // 네비게이션 초기화
+        function initNavigation() {
             const navItems = document.querySelectorAll('.nav-item');
             const contentSections = document.querySelectorAll('.content-section');
 
@@ -666,59 +777,100 @@
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Remove active class from all nav items
                     navItems.forEach(nav => nav.classList.remove('active'));
-                    
-                    // Add active class to clicked item
                     this.classList.add('active');
                     
-                    // Hide all content sections
                     contentSections.forEach(section => section.classList.remove('active'));
                     
-                    // Show target section
                     const targetSection = this.getAttribute('data-section');
                     document.getElementById(targetSection).classList.add('active');
                 });
             });
+        }
 
-            // Button management
-            initButtonManagement();
-            
-            // GIF management
-            initGifManagement();
-        });
+        // 폼 핸들러 초기화
+        function initFormHandlers() {
+            // 임베드 폼
+            document.getElementById('embedForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const embedData = {
+                    title: document.getElementById('embedTitle').value,
+                    description: document.getElementById('embedDescription').value,
+                    color: document.getElementById('embedColor').value
+                };
+                await saveConfig('embed', embedData);
+            });
 
-        function initGifManagement() {
-            const gifUrlInput = document.getElementById('gifUrl');
-            const gifPreview = document.getElementById('gifPreview');
-            const saveGifBtn = document.getElementById('saveGifBtn');
+            // 공지 폼
+            document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const noticeData = {
+                    title: document.getElementById('noticeTitle').value,
+                    content: document.getElementById('noticeContent').value,
+                    channel: document.getElementById('noticeChannel').value
+                };
+                await saveConfig('notice', noticeData);
+            });
 
-            // GIF URL 입력 시 미리보기 업데이트
-            if (gifUrlInput) {
-                gifUrlInput.addEventListener('input', function() {
-                    const url = this.value.trim();
-                    if (url && (url.includes('.gif') || url.includes('.webp') || url.includes('.png') || url.includes('.jpg'))) {
-                        gifPreview.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 200px; border-radius: 4px;" onerror="this.style.display='none'; this.parentNode.innerHTML='이미지를 불러올 수 없습니다.'">`;
-                    } else if (url) {
-                        gifPreview.innerHTML = '<span style="color: #ed4245;">올바른 이미지 URL을 입력해주세요 (.gif, .png, .jpg, .webp)</span>';
-                    } else {
-                        gifPreview.innerHTML = 'GIF URL을 입력하면 여기에 미리보기가 표시됩니다';
-                    }
+            // 제목 폼
+            document.getElementById('titleForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const titleData = {
+                    format: document.getElementById('titleFormat').value,
+                    categoryId: document.getElementById('categoryId').value,
+                    maxTickets: parseInt(document.getElementById('maxTickets').value) || 10
+                };
+                await saveConfig('title', titleData);
+            });
+
+            // GIF 폼
+            document.getElementById('gifForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const gifData = {
+                    url: document.getElementById('gifUrl').value,
+                    enabled: document.getElementById('gifEnabled').value
+                };
+                await saveConfig('gif', gifData);
+            });
+        }
+
+        // 설정 저장 공통 함수
+        async function saveConfig(type, data) {
+            try {
+                const response = await fetch(`/api/ticket-config/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ [type]: data })
                 });
-            }
 
-            // GIF 설정 저장
-            if (saveGifBtn) {
-                saveGifBtn.addEventListener('click', function() {
-                    const gifUrl = gifUrlInput.value.trim();
-                    const gifEnabled = document.getElementById('gifEnabled').value;
-                    
-                    // 여기에 실제 저장 로직 추가
-                    alert(`GIF 설정이 저장되었습니다!\nURL: ${gifUrl || '없음'}\n상태: ${gifEnabled === 'enabled' ? '활성화' : '비활성화'}`);
-                });
+                if (response.ok) {
+                    const result = await response.json();
+                    serverConfig = result.config;
+                    showAlert(type, `${type} 설정이 저장되었습니다.`, 'success');
+                } else {
+                    throw new Error('저장 실패');
+                }
+            } catch (error) {
+                console.error(`${type} 설정 저장 실패:`, error);
+                showAlert(type, `${type} 설정 저장에 실패했습니다.`, 'error');
             }
         }
 
+        // 알림 표시 함수
+        function showAlert(section, message, type = 'success') {
+            const alertId = `${section}-alert`;
+            const alertElement = document.getElementById(alertId);
+            if (alertElement) {
+                alertElement.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                setTimeout(() => {
+                    alertElement.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        // 버튼 관리 초기화
         function initButtonManagement() {
             const expandBtn = document.getElementById('expandBtn');
             const addButtonForm = document.getElementById('addButtonForm');
@@ -726,10 +878,8 @@
             const saveButtonBtn = document.getElementById('saveButtonBtn');
             const cancelButtonBtn = document.getElementById('cancelButtonBtn');
 
-            // Expand/collapse form
             expandBtn.addEventListener('click', function() {
                 const isExpanded = buttonFormContent.style.display !== 'none';
-                
                 if (isExpanded) {
                     collapseForm();
                 } else {
@@ -737,21 +887,40 @@
                 }
             });
 
-            // Save button
-            saveButtonBtn.addEventListener('click', function() {
-                saveButton();
+            saveButtonBtn.addEventListener('click', async function() {
+                await saveButton();
             });
 
-            // Cancel button
             cancelButtonBtn.addEventListener('click', function() {
                 collapseForm();
-                clearForm();
+                clearButtonForm();
             });
-
-            // Load existing buttons (demo data)
-            loadDemoButtons();
         }
 
+        // GIF 관리 초기화
+        function initGifManagement() {
+            const gifUrlInput = document.getElementById('gifUrl');
+            
+            if (gifUrlInput) {
+                gifUrlInput.addEventListener('input', function() {
+                    updateGifPreview(this.value.trim());
+                });
+            }
+        }
+
+        // GIF 미리보기 업데이트
+        function updateGifPreview(url) {
+            const gifPreview = document.getElementById('gifPreview');
+            if (url && (url.includes('.gif') || url.includes('.webp') || url.includes('.png') || url.includes('.jpg'))) {
+                gifPreview.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 200px; border-radius: 4px;" onerror="this.style.display='none'; this.parentNode.innerHTML='이미지를 불러올 수 없습니다.'">`;
+            } else if (url) {
+                gifPreview.innerHTML = '<span style="color: #ed4245;">올바른 이미지 URL을 입력해주세요 (.gif, .png, .jpg, .webp)</span>';
+            } else {
+                gifPreview.innerHTML = 'GIF URL을 입력하면 여기에 미리보기가 표시됩니다';
+            }
+        }
+
+        // 버튼 폼 확장
         function expandForm() {
             const expandBtn = document.getElementById('expandBtn');
             const addButtonForm = document.getElementById('addButtonForm');
@@ -762,6 +931,7 @@
             expandBtn.innerHTML = '<span>➖</span>폼 닫기';
         }
 
+        // 버튼 폼 축소
         function collapseForm() {
             const expandBtn = document.getElementById('expandBtn');
             const addButtonForm = document.getElementById('addButtonForm');
@@ -773,15 +943,18 @@
             editingButtonId = null;
         }
 
-        function clearForm() {
+        // 버튼 폼 초기화
+        function clearButtonForm() {
             document.getElementById('buttonText').value = '';
             document.getElementById('buttonEmoji').value = '';
             document.getElementById('buttonStyle').value = 'primary';
             document.getElementById('buttonId').value = '';
             document.getElementById('buttonDescription').value = '';
+            document.getElementById('saveButtonBtn').textContent = '버튼 저장';
         }
 
-        function saveButton() {
+        // 버튼 저장
+        async function saveButton() {
             const text = document.getElementById('buttonText').value.trim();
             const emoji = document.getElementById('buttonEmoji').value.trim();
             const style = document.getElementById('buttonStyle').value;
@@ -789,13 +962,7 @@
             const description = document.getElementById('buttonDescription').value.trim();
 
             if (!text || !id) {
-                alert('버튼 텍스트와 ID는 필수 입력 사항입니다.');
-                return;
-            }
-
-            // Check for duplicate IDs (except when editing)
-            if (buttons.some(btn => btn.id === id && btn.id !== editingButtonId)) {
-                alert('이미 존재하는 버튼 ID입니다. 다른 ID를 사용해주세요.');
+                showAlert('button-form', '버튼 텍스트와 ID는 필수 입력 사항입니다.', 'error');
                 return;
             }
 
@@ -805,61 +972,85 @@
                 emoji: emoji,
                 style: style,
                 description: description,
-                createdAt: editingButtonId ? buttons.find(b => b.id === editingButtonId).createdAt : new Date().toISOString()
+                createdAt: editingButtonId && serverConfig.buttons ? 
+                    serverConfig.buttons.find(b => b.id === editingButtonId)?.createdAt : 
+                    new Date().toISOString()
             };
 
-            if (editingButtonId) {
-                // Edit existing button
-                const index = buttons.findIndex(b => b.id === editingButtonId);
-                buttons[index] = buttonData;
-            } else {
-                // Add new button
-                buttons.push(buttonData);
-            }
+            try {
+                const response = await fetch('/api/ticket-config/button', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ button: buttonData })
+                });
 
-            renderButtons();
-            collapseForm();
-            clearForm();
+                if (response.ok) {
+                    const result = await response.json();
+                    serverConfig = result.config;
+                    renderButtons();
+                    collapseForm();
+                    clearButtonForm();
+                    showAlert('button-form', editingButtonId ? '버튼이 수정되었습니다.' : '버튼이 저장되었습니다.', 'success');
+                } else {
+                    throw new Error('버튼 저장 실패');
+                }
+            } catch (error) {
+                console.error('버튼 저장 실패:', error);
+                showAlert('button-form', '버튼 저장에 실패했습니다.', 'error');
+            }
         }
 
-        function deleteButton(buttonId) {
-            if (confirm('정말로 이 버튼을 삭제하시겠습니까?')) {
-                buttons = buttons.filter(btn => btn.id !== buttonId);
-                renderButtons();
+        // 버튼 삭제
+        async function deleteButton(buttonId) {
+            if (!confirm('정말로 이 버튼을 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`/api/ticket-config/button/${buttonId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    serverConfig = result.config;
+                    renderButtons();
+                    showAlert('button-form', '버튼이 삭제되었습니다.', 'success');
+                } else {
+                    throw new Error('버튼 삭제 실패');
+                }
+            } catch (error) {
+                console.error('버튼 삭제 실패:', error);
+                showAlert('button-form', '버튼 삭제에 실패했습니다.', 'error');
             }
         }
 
+        // 버튼 수정
         function editButton(buttonId) {
-            const button = buttons.find(btn => btn.id === buttonId);
+            const button = serverConfig.buttons?.find(btn => btn.id === buttonId);
             if (!button) return;
 
             editingButtonId = buttonId;
             
-            // Fill form with button data
             document.getElementById('buttonText').value = button.text;
             document.getElementById('buttonEmoji').value = button.emoji;
             document.getElementById('buttonStyle').value = button.style;
             document.getElementById('buttonId').value = button.id;
             document.getElementById('buttonDescription').value = button.description;
 
-            // Expand form
             expandForm();
-
-            // Change save button text
             document.getElementById('saveButtonBtn').textContent = '버튼 수정';
         }
 
+        // 버튼 목록 렌더링
         function renderButtons() {
             const buttonList = document.getElementById('buttonList');
-            const noButtonsMessage = document.getElementById('noButtonsMessage');
+            const buttons = serverConfig?.buttons || [];
 
             if (buttons.length === 0) {
-                noButtonsMessage.style.display = 'block';
-                buttonList.innerHTML = '<div class="no-buttons" id="noButtonsMessage">아직 생성된 버튼이 없습니다. 위의 \'새 버튼 추가하기\'를 클릭해보세요!</div>';
+                buttonList.innerHTML = '<div class="no-buttons">아직 생성된 버튼이 없습니다. 위의 \'새 버튼 추가하기\'를 클릭해보세요!</div>';
                 return;
             }
-
-            noButtonsMessage.style.display = 'none';
 
             const buttonsHtml = buttons.map(button => {
                 const displayText = button.emoji ? `${button.emoji} ${button.text}` : button.text;
@@ -883,38 +1074,6 @@
             }).join('');
 
             buttonList.innerHTML = buttonsHtml;
-        }
-
-        function loadDemoButtons() {
-            // Demo buttons for demonstration
-            buttons = [
-                {
-                    id: 'ticket_support',
-                    text: '티켓 생성',
-                    emoji: '🎫',
-                    style: 'primary',
-                    description: '일반적인 지원 요청을 위한 티켓',
-                    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-                },
-                {
-                    id: 'bug_report',
-                    text: '버그 신고',
-                    emoji: '🐛',
-                    style: 'danger',
-                    description: '버그나 오류를 신고할 때 사용하는 티켓',
-                    createdAt: new Date(Date.now() - 43200000).toISOString() // 12 hours ago
-                },
-                {
-                    id: 'purchase_help',
-                    text: '구매 문의',
-                    emoji: '💰',
-                    style: 'success',
-                    description: '상품 구매 관련 문의사항',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-
-            renderButtons();
         }
     </script>
 </body>
