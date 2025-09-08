@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okinawa Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #2f3136;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #2f3136;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #5865f2;
+            border-radius: 4px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px;
+            border-bottom: 1px solid #40444b;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #5865f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-category {
+            margin-bottom: 25px;
+        }
+
+        .nav-category-title {
+            color: #8e9297;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            padding: 0 20px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            color: #b9bbbe;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #393c43;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #5865f2;
+            color: #fff;
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            padding: 30px;
+            background: #36393f;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #b9bbbe;
+            font-size: 14px;
+        }
+
+        /* Service Status Card */
+        .service-card {
+            background: #40444b;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border-left: 4px solid #5865f2;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            background: #5865f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .service-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .service-status {
+            color: #57f287;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .settings-form {
+            background: #40444b;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #b9bbbe;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #2f3136;
+            border: 1px solid #40444b;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #5865f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #4752c4;
+        }
+
+        .btn-success {
+            background: #57f287;
+        }
+
+        .btn-success:hover {
+            background: #43a867;
+        }
+
+        .btn-danger {
+            background: #ed4245;
+        }
+
+        .btn-danger:hover {
+            background: #c13135;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ed4245;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c13135;
+        }
+
+        /* Button Management Styles */
+        .button-list {
+            margin-bottom: 30px;
+        }
+
+        .button-item {
+            background: #2f3136;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #40444b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .button-item:hover {
+            border-color: #5865f2;
+            transform: translateY(-1px);
+        }
+
+        .button-info {
+            flex: 1;
+        }
+
+        .button-preview {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .button-preview.primary {
+            background: #5865f2;
+            color: white;
+        }
+
+        .button-preview.secondary {
+            background: #4f545c;
+            color: white;
+        }
+
+        .button-preview.success {
+            background: #57f287;
+            color: #1e2328;
+        }
+
+        .button-preview.danger {
+            background: #ed4245;
+            color: white;
+        }
+
+        .button-details {
+            color: #b9bbbe;
+            font-size: 12px;
+        }
+
+        .button-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-button-form {
+            background: #2f3136;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #40444b;
+        }
+
+        .add-button-form.expanded {
+            border-color: #5865f2;
+            border-style: solid;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .expand-btn {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .expand-btn:hover {
+            background: #40444b;
+            color: #fff;
+        }
+
+        .no-buttons {
+            text-align: center;
+            padding: 40px;
+            color: #8e9297;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">O</div>
+                <div class="logo-text">Okinawa</div>
+            </div>
+
+            <div class="nav-category">
+                <div class="nav-category-title">Main</div>
+                <a href="#" class="nav-item active" data-section="main">
+                    <div class="nav-item-icon">🏠</div>
+                    메인메뉴
+                </a>
+            </div>
+
+            <div class="nav-category">
+                <div class="nav-category-title">Ticket Setting</div>
+                <a href="#" class="nav-item" data-section="embed">
+                    <div class="nav-item-icon">📄</div>
+                    임베드 설정
+                </a>
+                <a href="#" class="nav-item" data-section="notice">
+                    <div class="nav-item-icon">📢</div>
+                    공지설정
+                </a>
+                <a href="#" class="nav-item" data-section="button">
+                    <div class="nav-item-icon">🔘</div>
+                    버튼설정
+                </a>
+                <a href="#" class="nav-item" data-section="title">
+                    <div class="nav-item-icon">🏷️</div>
+                    제목설정
+                </a>
+                <a href="#" class="nav-item" data-section="gif">
+                    <div class="nav-item-icon">🎬</div>
+                    GIF 설정
+                </a>
+            </div>
+
+            <a href="/logout" class="logout-btn">로그아웃</a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Main Section -->
+            <div id="main" class="content-section active">
+                <div class="header">
+                    <h1>대시보드</h1>
+                    <p>봇의 현재 상태와 설정을 관리하세요</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">⚙️</div>
+                        <div>
+                            <div class="service-title">Okinawa Service</div>
+                            <div class="service-status">활성화 됨온 Roblox shop (24시)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Embed Settings Section -->
+            <div id="embed" class="content-section">
+                <div class="header">
+                    <h1>임베드 설정</h1>
+                    <p>티켓 임베드 메시지를 설정하세요</p>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="form-label">임베드 제목</label>
+                        <input type="text" class="form-input" placeholder="티켓 임베드 제목을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">임베드 설명</label>
+                        <textarea class="form-input form-textarea" placeholder="티켓 임베드 설명을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">임베드 색상</label>
+                        <input type="color" class="form-input" value="#5865f2">
+                    </div>
+
+                    <button class="btn">설정 저장</button>
+                </div>
+            </div>
+
+            <!-- Notice Settings Section -->
+            <div id="notice" class="content-section">
+                <div class="header">
+                    <h1>공지설정</h1>
+                    <p>공지사항 메시지를 설정하세요</p>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="form-label">공지 제목</label>
+                        <input type="text" class="form-input" placeholder="공지 제목을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">공지 내용</label>
+                        <textarea class="form-input form-textarea" placeholder="공지 내용을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">공지 채널</label>
+                        <select class="form-input">
+                            <option>채널을 선택하세요</option>
+                            <option>#공지사항</option>
+                            <option>#일반</option>
+                        </select>
+                    </div>
+
+                    <button class="btn">공지 발송</button>
+                </div>
+            </div>
+
+            <!-- Button Settings Section -->
+            <div id="button" class="content-section">
+                <div class="header">
+                    <h1>버튼설정</h1>
+                    <p>티켓 생성 버튼들을 관리하세요</p>
+                </div>
+
+                <!-- Add Button Form -->
+                <div class="add-button-form" id="addButtonForm">
+                    <button class="expand-btn" id="expandBtn">
+                        <span>➕</span>
+                        새 버튼 추가하기
+                    </button>
+                    
+                    <div id="buttonFormContent" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">버튼 텍스트</label>
+                                <input type="text" id="buttonText" class="form-input" placeholder="버튼에 표시될 텍스트">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">버튼 이모지</label>
+                                <input type="text" id="buttonEmoji" class="form-input" placeholder="🎫" maxlength="2">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">버튼 스타일</label>
+                                <select id="buttonStyle" class="form-input">
+                                    <option value="primary">Primary (파란색)</option>
+                                    <option value="secondary">Secondary (회색)</option>
+                                    <option value="success">Success (초록색)</option>
+                                    <option value="danger">Danger (빨간색)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">버튼 ID</label>
+                                <input type="text" id="buttonId" class="form-input" placeholder="button_1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">버튼 설명</label>
+                            <textarea id="buttonDescription" class="form-input" placeholder="이 버튼의 용도를 설명해주세요" rows="3"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 20px;">
+                            <button class="btn btn-success" id="saveButtonBtn">버튼 저장</button>
+                            <button class="btn btn-danger" id="cancelButtonBtn">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button List -->
+                <div class="settings-form">
+                    <h3 style="margin-bottom: 20px; color: #fff;">생성된 버튼 목록</h3>
+                    
+                    <div class="button-list" id="buttonList">
+                        <div class="no-buttons" id="noButtonsMessage">
+                            아직 생성된 버튼이 없습니다. 위의 '새 버튼 추가하기'를 클릭해보세요!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Title Settings Section -->
+            <div id="title" class="content-section">
+                <div class="header">
+                    <h1>제목설정</h1>
+                    <p>티켓 채널 제목 형식을 설정하세요</p>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="form-label">채널 제목 형식</label>
+                        <input type="text" class="form-input" placeholder="ticket-{username}" value="ticket-{username}">
+                        <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
+                            사용 가능한 변수: {username}, {userid}, {number}
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">카테고리 선택</label>
+                        <select class="form-input">
+                            <option>카테고리를 선택하세요</option>
+                            <option>📋 티켓</option>
+                            <option>🎫 지원</option>
+                            <option>💼 관리</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">최대 티켓 수</label>
+                        <input type="number" class="form-input" placeholder="10" value="10">
+                    </div>
+
+                    <button class="btn">설정 저장</button>
+                </div>
+            </div>
+
+            <!-- GIF Settings Section -->
+            <div id="gif" class="content-section">
+                <div class="header">
+                    <h1>GIF 설정</h1>
+                    <p>임베드에 표시될 GIF 이미지를 설정하세요</p>
+                </div>
+
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="form-label">임베드 GIF URL</label>
+                        <input type="url" id="gifUrl" class="form-input" placeholder="https://example.com/embed-image.gif" value="">
+                        <small style="color: #b9bbbe; font-size: 12px; margin-top: 4px; display: block;">
+                            티켓 생성 임베드에 표시될 GIF 이미지 URL을 입력하세요
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GIF 미리보기</label>
+                        <div style="background: #2f3136; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #40444b;">
+                            <div id="gifPreview" style="color: #8e9297; font-style: italic;">
+                                GIF URL을 입력하면 여기에 미리보기가 표시됩니다
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GIF 표시 설정</label>
+                        <select class="form-input" id="gifEnabled">
+                            <option value="enabled">GIF 표시 활성화</option>
+                            <option value="disabled">GIF 표시 비활성화</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" id="saveGifBtn">GIF 설정 저장</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let buttons = [];
+        let editingButtonId = null;
+
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all nav items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    // Show target section
+                    const targetSection = this.getAttribute('data-section');
+                    document.getElementById(targetSection).classList.add('active');
+                });
+            });
+
+            // Button management
+            initButtonManagement();
+            
+            // GIF management
+            initGifManagement();
+        });
+
+        function initGifManagement() {
+            const gifUrlInput = document.getElementById('gifUrl');
+            const gifPreview = document.getElementById('gifPreview');
+            const saveGifBtn = document.getElementById('saveGifBtn');
+
+            // GIF URL 입력 시 미리보기 업데이트
+            if (gifUrlInput) {
+                gifUrlInput.addEventListener('input', function() {
+                    const url = this.value.trim();
+                    if (url && (url.includes('.gif') || url.includes('.webp') || url.includes('.png') || url.includes('.jpg'))) {
+                        gifPreview.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 200px; border-radius: 4px;" onerror="this.style.display='none'; this.parentNode.innerHTML='이미지를 불러올 수 없습니다.'">`;
+                    } else if (url) {
+                        gifPreview.innerHTML = '<span style="color: #ed4245;">올바른 이미지 URL을 입력해주세요 (.gif, .png, .jpg, .webp)</span>';
+                    } else {
+                        gifPreview.innerHTML = 'GIF URL을 입력하면 여기에 미리보기가 표시됩니다';
+                    }
+                });
+            }
+
+            // GIF 설정 저장
+            if (saveGifBtn) {
+                saveGifBtn.addEventListener('click', function() {
+                    const gifUrl = gifUrlInput.value.trim();
+                    const gifEnabled = document.getElementById('gifEnabled').value;
+                    
+                    // 여기에 실제 저장 로직 추가
+                    alert(`GIF 설정이 저장되었습니다!\nURL: ${gifUrl || '없음'}\n상태: ${gifEnabled === 'enabled' ? '활성화' : '비활성화'}`);
+                });
+            }
+        }
+
+        function initButtonManagement() {
+            const expandBtn = document.getElementById('expandBtn');
+            const addButtonForm = document.getElementById('addButtonForm');
+            const buttonFormContent = document.getElementById('buttonFormContent');
+            const saveButtonBtn = document.getElementById('saveButtonBtn');
+            const cancelButtonBtn = document.getElementById('cancelButtonBtn');
+
+            // Expand/collapse form
+            expandBtn.addEventListener('click', function() {
+                const isExpanded = buttonFormContent.style.display !== 'none';
+                
+                if (isExpanded) {
+                    collapseForm();
+                } else {
+                    expandForm();
+                }
+            });
+
+            // Save button
+            saveButtonBtn.addEventListener('click', function() {
+                saveButton();
+            });
+
+            // Cancel button
+            cancelButtonBtn.addEventListener('click', function() {
+                collapseForm();
+                clearForm();
+            });
+
+            // Load existing buttons (demo data)
+            loadDemoButtons();
+        }
+
+        function expandForm() {
+            const expandBtn = document.getElementById('expandBtn');
+            const addButtonForm = document.getElementById('addButtonForm');
+            const buttonFormContent = document.getElementById('buttonFormContent');
+
+            buttonFormContent.style.display = 'block';
+            addButtonForm.classList.add('expanded');
+            expandBtn.innerHTML = '<span>➖</span>폼 닫기';
+        }
+
+        function collapseForm() {
+            const expandBtn = document.getElementById('expandBtn');
+            const addButtonForm = document.getElementById('addButtonForm');
+            const buttonFormContent = document.getElementById('buttonFormContent');
+
+            buttonFormContent.style.display = 'none';
+            addButtonForm.classList.remove('expanded');
+            expandBtn.innerHTML = '<span>➕</span>새 버튼 추가하기';
+            editingButtonId = null;
+        }
+
+        function clearForm() {
+            document.getElementById('buttonText').value = '';
+            document.getElementById('buttonEmoji').value = '';
+            document.getElementById('buttonStyle').value = 'primary';
+            document.getElementById('buttonId').value = '';
+            document.getElementById('buttonDescription').value = '';
+        }
+
+        function saveButton() {
+            const text = document.getElementById('buttonText').value.trim();
+            const emoji = document.getElementById('buttonEmoji').value.trim();
+            const style = document.getElementById('buttonStyle').value;
+            const id = document.getElementById('buttonId').value.trim();
+            const description = document.getElementById('buttonDescription').value.trim();
+
+            if (!text || !id) {
+                alert('버튼 텍스트와 ID는 필수 입력 사항입니다.');
+                return;
+            }
+
+            // Check for duplicate IDs (except when editing)
+            if (buttons.some(btn => btn.id === id && btn.id !== editingButtonId)) {
+                alert('이미 존재하는 버튼 ID입니다. 다른 ID를 사용해주세요.');
+                return;
+            }
+
+            const buttonData = {
+                id: id,
+                text: text,
+                emoji: emoji,
+                style: style,
+                description: description,
+                createdAt: editingButtonId ? buttons.find(b => b.id === editingButtonId).createdAt : new Date().toISOString()
+            };
+
+            if (editingButtonId) {
+                // Edit existing button
+                const index = buttons.findIndex(b => b.id === editingButtonId);
+                buttons[index] = buttonData;
+            } else {
+                // Add new button
+                buttons.push(buttonData);
+            }
+
+            renderButtons();
+            collapseForm();
+            clearForm();
+        }
+
+        function deleteButton(buttonId) {
+            if (confirm('정말로 이 버튼을 삭제하시겠습니까?')) {
+                buttons = buttons.filter(btn => btn.id !== buttonId);
+                renderButtons();
+            }
+        }
+
+        function editButton(buttonId) {
+            const button = buttons.find(btn => btn.id === buttonId);
+            if (!button) return;
+
+            editingButtonId = buttonId;
+            
+            // Fill form with button data
+            document.getElementById('buttonText').value = button.text;
+            document.getElementById('buttonEmoji').value = button.emoji;
+            document.getElementById('buttonStyle').value = button.style;
+            document.getElementById('buttonId').value = button.id;
+            document.getElementById('buttonDescription').value = button.description;
+
+            // Expand form
+            expandForm();
+
+            // Change save button text
+            document.getElementById('saveButtonBtn').textContent = '버튼 수정';
+        }
+
+        function renderButtons() {
+            const buttonList = document.getElementById('buttonList');
+            const noButtonsMessage = document.getElementById('noButtonsMessage');
+
+            if (buttons.length === 0) {
+                noButtonsMessage.style.display = 'block';
+                buttonList.innerHTML = '<div class="no-buttons" id="noButtonsMessage">아직 생성된 버튼이 없습니다. 위의 \'새 버튼 추가하기\'를 클릭해보세요!</div>';
+                return;
+            }
+
+            noButtonsMessage.style.display = 'none';
+
+            const buttonsHtml = buttons.map(button => {
+                const displayText = button.emoji ? `${button.emoji} ${button.text}` : button.text;
+                
+                return `
+                    <div class="button-item">
+                        <div class="button-info">
+                            <div class="button-preview ${button.style}">${displayText}</div>
+                            <div class="button-details">
+                                ID: ${button.id} | 스타일: ${button.style} | 
+                                생성일: ${new Date(button.createdAt).toLocaleDateString('ko-KR')}
+                                ${button.description ? `<br>설명: ${button.description}` : ''}
+                            </div>
+                        </div>
+                        <div class="button-actions">
+                            <button class="btn btn-sm" onclick="editButton('${button.id}')">수정</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteButton('${button.id}')">삭제</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            buttonList.innerHTML = buttonsHtml;
+        }
+
+        function loadDemoButtons() {
+            // Demo buttons for demonstration
+            buttons = [
+                {
+                    id: 'ticket_support',
+                    text: '티켓 생성',
+                    emoji: '🎫',
+                    style: 'primary',
+                    description: '일반적인 지원 요청을 위한 티켓',
+                    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+                },
+                {
+                    id: 'bug_report',
+                    text: '버그 신고',
+                    emoji: '🐛',
+                    style: 'danger',
+                    description: '버그나 오류를 신고할 때 사용하는 티켓',
+                    createdAt: new Date(Date.now() - 43200000).toISOString() // 12 hours ago
+                },
+                {
+                    id: 'purchase_help',
+                    text: '구매 문의',
+                    emoji: '💰',
+                    style: 'success',
+                    description: '상품 구매 관련 문의사항',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            renderButtons();
+        }
+    </script>
+</body>
+</html>

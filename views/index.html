@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black h-screen flex items-center justify-center text-white">
+
+  <!-- 전체 레이아웃 -->
+  <div class="flex w-full h-full">
+    
+    <!-- 왼쪽 영역 -->
+    <div class="flex flex-col justify-center items-center w-1/2 bg-black">
+      <img src="https://cdn.discordapp.com/attachments/1411000761655230529/1413176991598907443/ChatGPT_Image_2025_9_5_12_00_41.png?ex=68bafb22&is=68b9a9a2&hm=c1f4feb235a8ceb58a0b0d0e5a8589536b766a4b9b2cdced5ed08bd5e815a1b4&" alt="로고" class="mb-6">
+      <h1 class="text-2xl font-bold mb-2">Okinawa Support</h1>
+      <p class="text-gray-400">오키나와 서포트 봇</p>
+    </div>
+
+    <!-- 오른쪽 로그인 박스 -->
+    <div class="flex justify-center items-center w-1/2 bg-black">
+      <div class="bg-gray-900 p-8 rounded-xl shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-6">Okinawa Service Login</h2>
+        
+        <!-- ✅ webaccounts.json 계정 로그인 전용 -->
+        <form action="/local-login" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-sm mb-1">아이디 (ID)</label>
+            <input 
+              type="text" 
+              name="username" 
+              placeholder="Enter Server ID" 
+              class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+              required>
+          </div>
+          
+          <div>
+            <label class="block text-sm mb-1">비밀번호 (PW)</label>
+            <input 
+              type="password" 
+              name="password" 
+              placeholder="Enter Password" 
+              class="w-full px-4 py-2 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+              required>
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg transition">
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
