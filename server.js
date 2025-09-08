@@ -16,7 +16,7 @@ app.use(session({
 }));
 
 // webaccounts.json 경로 (Render 서버에서 직접 관리)
-const WEB_ACCOUNTS_FILE = path.join(__dirname, "data", "webaccounts.json");
+const WEB_ACCOUNTS_FILE = path.join(__dirname, "data/webaccounts.json");
 
 // 계정 불러오기
 function loadWebAccounts() {
