@@ -50,14 +50,29 @@ app.post("/local-login", (req, res) => {
     );
 
     if (!account) {
-        return res.status(401).json({ error: "아이디 또는 비밀번호가 잘못되었습니다." });
+        return res.status(401).send(`
+            <html>
+                <head>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                    <title>로그인 실패</title>
+                </head>
+                <body class="bg-black text-white h-screen flex items-center justify-center">
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold mb-4">로그인 실패</h1>
+                        <p class="mb-4">아이디 또는 비밀번호가 잘못되었습니다.</p>
+                        <a href="/" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">다시 로그인</a>
+                    </div>
+                </body>
+            </html>
+        `);
     }
 
-    // ✅ 로그인 성공 → 세션에 저장
+    // ✅ 로그인 성공 → 세션에 저장 (서버 이름도 포함)
     req.session.guildId = account.guildId;
     req.session.username = account.username;
+    req.session.serverName = account.serverName; // 서버 이름 추가
 
-    res.json({ success: true, guildId: account.guildId });
+    res.redirect("/success");
 });
 
 // 로그아웃
@@ -73,6 +88,19 @@ app.get("/success", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "success.html"));
 });
 
+// ========== 세션 정보 API (success.html에서 서버 이름 가져오기) ==========
+app.get("/api/session-info", (req, res) => {
+    if (!req.session.guildId) {
+        return res.status(401).json({ error: "로그인이 필요합니다." });
+    }
+
+    res.json({
+        guildId: req.session.guildId,
+        username: req.session.username,
+        serverName: req.session.serverName || "Unknown Server"
+    });
+});
+
 // ========== 티켓 설정 API ==========
 const CONFIG_FILE = path.join(__dirname, "data", "ticket_config.json");
 
@@ -84,6 +112,10 @@ function loadConfig() {
 }
 
 function saveConfig(config) {
+    const dir = path.dirname(CONFIG_FILE);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
 }
 
@@ -95,10 +127,22 @@ function ensureServerConfig(config, guildId) {
             sellerRoles: [],
             embed: {},
             notice: {},
-            title: {}
+            title: {},
+            gif: {}
         };
     }
 }
+
+// 현재 서버 설정 가져오기
+app.get("/api/ticket-config", (req, res) => {
+    if (!req.session.guildId) return res.status(401).json({ error: "로그인이 필요합니다." });
+
+    const guildId = req.session.guildId;
+    const config = loadConfig();
+    ensureServerConfig(config, guildId);
+
+    res.json({ success: true, config: config.servers[guildId] });
+});
 
 // 버튼 저장
 app.post("/api/ticket-config/button", (req, res) => {
@@ -118,6 +162,22 @@ app.post("/api/ticket-config/button", (req, res) => {
     } else {
         config.servers[guildId].buttons.push(button);
     }
+
+    saveConfig(config);
+    res.json({ success: true, config: config.servers[guildId] });
+});
+
+// 버튼 삭제
+app.delete("/api/ticket-config/button/:buttonId", (req, res) => {
+    if (!req.session.guildId) return res.status(401).json({ error: "로그인이 필요합니다." });
+
+    const { buttonId } = req.params;
+    const guildId = req.session.guildId;
+
+    const config = loadConfig();
+    ensureServerConfig(config, guildId);
+
+    config.servers[guildId].buttons = config.servers[guildId].buttons.filter(b => b.id !== buttonId);
 
     saveConfig(config);
     res.json({ success: true, config: config.servers[guildId] });
@@ -177,7 +237,26 @@ app.post("/api/ticket-config/title", (req, res) => {
     res.json({ success: true, config: config.servers[guildId] });
 });
 
+// GIF 저장
+app.post("/api/ticket-config/gif", (req, res) => {
+    if (!req.session.guildId) return res.status(401).json({ error: "로그인이 필요합니다." });
+
+    const { gif } = req.body;
+    const guildId = req.session.guildId;
+
+    if (!gif) return res.status(400).json({ error: "gif 데이터는 필수입니다." });
+
+    const config = loadConfig();
+    ensureServerConfig(config, guildId);
+
+    config.servers[guildId].gif = gif;
+    saveConfig(config);
+
+    res.json({ success: true, config: config.servers[guildId] });
+});
+
 // ========== 서버 실행 ==========
-app.listen(3000, () => {
-    console.log("✅ 서버 실행 중: https://okinawadash.onrender.com");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`✅ 서버 실행 중: http://localhost:${PORT}`);
 });
